@@ -8,6 +8,14 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.setBaseViewsDir(join(process.cwd(), "views"));
   app.setViewEngine("ejs");
+  app.useStaticAssets(join(process.cwd(), "public"));
+  app.useStaticAssets(join(process.cwd(), "node_modules", "bootstrap", "dist", "css"), {
+    prefix: "/vendor/bootstrap/css",
+  });
+  app.useStaticAssets(
+    join(process.cwd(), "node_modules", "bootstrap-icons", "font"),
+    { prefix: "/vendor/bootstrap-icons/font" },
+  );
   await app.listen(3000);
   console.log(`Application is running on: http://localhost:3000`);
 }

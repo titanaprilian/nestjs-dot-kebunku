@@ -1,0 +1,55 @@
+:root {
+  --kebunku-green: #526653;
+  --kebunku-ink: #18261b;
+  --kebunku-paper: #f7f6f1;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--kebunku-ink);
+  background: var(--kebunku-paper);
+}
+
+.site-header {
+  padding: 1rem clamp(1rem, 5vw, 4rem);
+  background: var(--kebunku-ink);
+}
+
+.site-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: #fff;
+  font-weight: 700;
+  line-height: 1.1;
+  text-decoration: none;
+}
+
+.site-brand .bi {
+  color: #b7c9a9;
+  font-size: 1.5rem;
+}
+
+.site-brand small {
+  display: block;
+  margin-top: 0.25rem;
+  color: #d8e1d4;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.login-panel {
+  max-width: 36rem;
+  margin: 3rem auto;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  background: #fff;
+  border: 1px solid #e2e5dc;
+  border-radius: 0.75rem;
+}
+
+.login-panel h1 {
+  margin: 0;
+  color: var(--kebunku-green);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+}
