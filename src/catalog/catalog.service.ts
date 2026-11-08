@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 
 export interface Category {
   id: number;
@@ -17,6 +21,7 @@ export interface Tree {
 
 @Injectable()
 export class CatalogService {
+  private nextCategoryId = 3;
   private readonly categories: Category[] = [
     { id: 1, name: "Mango", code: "MNG" },
     { id: 2, name: "Avocado", code: "AVO" },
@@ -67,6 +72,85 @@ export class CatalogService {
         .map((tree) => ({ ...tree, category })),
     };
   }
+
+  createCategory(input: Record<string, unknown>): Category {
+    const name = this.requiredText(input.name, "name", 80);
+    const code = this.categoryCode(input.code);
+    if (this.categories.some((category) => category.code === code)) {
+      throw new BadRequestException("code must be unique.");
+    }
+
+    const category = {
+      id: this.nextCategoryId++,
+      name,
+      code,
+    };
+    this.categories.push(category);
+    return category;
+  }
+
+  updateCategory(id: number, input: Record<string, unknown>): Category {
+    const category = this.categories.find((item) => item.id === id);
+    if (!category) throw new NotFoundException("Category not found.");
+
+    const name = this.requiredText(input.name, "name", 80);
+    const code = this.categoryCode(input.code);
+    if (
+      code !== category.code &&
+      this.categories.some((item) => item.id !== id && item.code === code)
+    ) {
+      throw new BadRequestException("code must be unique.");
+    }
+    if (
+      code !== category.code &&
+      this.trees.some((tree) => tree.categoryId === id)
+    ) {
+      throw new BadRequestException(
+        "A category code cannot change while trees reference the category.",
+      );
+    }
+
+    category.name = name;
+    category.code = code;
+    return category;
+  }
+
+  deleteCategory(id: number): void {
+    const index = this.categories.findIndex((item) => item.id === id);
+    if (index === -1) throw new NotFoundException("Category not found.");
+    if (this.trees.some((tree) => tree.categoryId === id)) {
+      throw new BadRequestException(
+        "Move or delete this category’s trees before deleting the category.",
+      );
+    }
+    this.categories.splice(index, 1);
+  }
+
+  private requiredText(value: unknown, field: string, max?: number): string {
+    if (
+      typeof value !== "string" ||
+      !value.trim() ||
+      (max !== undefined && value.trim().length > max)
+    ) {
+      throw new BadRequestException(
+        max === undefined
+          ? `${field} is required.`
+          : `${field} is required and must be at most ${max} characters.`,
+      );
+    }
+    return value.trim();
+  }
+
+  private categoryCode(value: unknown): string {
+    const code = this.requiredText(value, "code").toUpperCase();
+    if (!/^[A-Z0-9]+$/.test(code)) {
+      throw new BadRequestException(
+        "code must contain only letters and numbers.",
+      );
+    }
+    return code;
+  }
+
 
   treeList(search = "", categoryId?: number) {
     const query = search.trim().toLocaleLowerCase();

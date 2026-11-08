@@ -1,8 +1,11 @@
 import {
+  BadRequestException,
+  Body,
   Controller,
   Get,
   Param,
   ParseIntPipe,
+  Post,
   Query,
   Render,
   Res,
@@ -56,8 +59,31 @@ export class PagesController {
     return {
       title: "New category",
       adminName: "Titan Apriliyan",
+      categoryId: null,
       category: null,
+      error: null,
     };
+  }
+
+  @Post("categories")
+  createCategory(@Body() body: Record<string, unknown>, @Res() res: Response) {
+    try {
+      this.catalog.createCategory(body);
+      return res.redirect("/categories");
+    } catch (error) {
+      if (!(error instanceof BadRequestException)) throw error;
+      return res.status(400).render("category-form", {
+        title: "New category",
+        adminName: "Titan Apriliyan",
+        categoryId: null,
+        category: {
+          name: typeof body.name === "string" ? body.name : "",
+          code: typeof body.code === "string" ? body.code : "",
+          trees: [],
+        },
+        error: error.message,
+      });
+    }
   }
 
   @Get("categories/:id/edit")
@@ -66,9 +92,57 @@ export class PagesController {
     return {
       title: "Edit category",
       adminName: "Titan Apriliyan",
+      categoryId: id,
       category: this.catalog.category(id),
+      error: null,
     };
   }
+
+  @Post("categories/:id")
+  updateCategory(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() body: Record<string, unknown>,
+    @Res() res: Response,
+  ) {
+    const existingCategory = this.catalog.category(id);
+    try {
+      this.catalog.updateCategory(id, body);
+      return res.redirect(`/categories/${id}`);
+    } catch (error) {
+      if (!(error instanceof BadRequestException)) throw error;
+      return res.status(400).render("category-form", {
+        title: "Edit category",
+        adminName: "Titan Apriliyan",
+        category: {
+          ...existingCategory,
+          name: typeof body.name === "string" ? body.name : "",
+          code: typeof body.code === "string" ? body.code : "",
+        },
+        categoryId: id,
+        error: error.message,
+      });
+    }
+  }
+
+  @Post("categories/:id/delete")
+  deleteCategory(
+    @Param("id", ParseIntPipe) id: number,
+    @Res() res: Response,
+  ) {
+    try {
+      this.catalog.deleteCategory(id);
+      return res.redirect("/categories");
+    } catch (error) {
+      if (!(error instanceof BadRequestException)) throw error;
+      return res.status(400).render("category-detail", {
+        title: "Category details",
+        adminName: "Titan Apriliyan",
+        category: this.catalog.category(id),
+        error: error.message,
+      });
+    }
+  }
+
 
   @Get("categories/:id")
   @Render("category-detail")
@@ -77,6 +151,7 @@ export class PagesController {
       title: "Category details",
       adminName: "Titan Apriliyan",
       category: this.catalog.category(id),
+      error: null,
     };
   }
 

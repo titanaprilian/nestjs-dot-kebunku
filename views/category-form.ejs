@@ -1,13 +1,14 @@
 <%- include("partials/header", { title, adminName }) %>
 <p class="mb-3"><a href="/categories">← All categories</a></p>
 <div class="mb-4">
-  <h1 class="h2 mb-1"><%= category ? "Edit category" : "New category" %></h1>
+  <h1 class="h2 mb-1"><%= categoryId ? "Edit category" : "New category" %></h1>
   <p class="text-body-secondary mb-0">Set the category name and registry code.</p>
 </div>
 <div class="row g-3 mb-4">
   <div class="col-12 col-lg-9 col-xxl-8">
     <section class="card"><div class="card-body">
-      <form action="<%= category ? "/categories/" + category.id : "/categories" %>" method="post">
+      <% if (error) { %><div class="alert alert-danger" role="alert"><%= error %></div><% } %>
+      <form action="<%= categoryId ? "/categories/" + categoryId : "/categories" %>" method="post">
         <div class="mb-3">
           <label class="form-label" for="name">Category name <span class="text-danger">*</span></label>
           <input class="form-control" id="name" name="name" required maxlength="80" value="<%= category ? category.name : "" %>" placeholder="e.g. Durian">
@@ -19,7 +20,7 @@
         </div>
         <div class="d-flex justify-content-end gap-2 border-top pt-3">
           <a class="btn btn-outline-secondary" href="/categories">Cancel</a>
-          <button class="btn btn-primary" type="submit"><%= category ? "Save changes" : "Create category" %></button>
+          <button class="btn btn-primary" type="submit"><%= categoryId ? "Save changes" : "Create category" %></button>
         </div>
       </form>
     </div></section>
