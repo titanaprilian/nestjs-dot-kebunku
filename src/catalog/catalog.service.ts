@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 
 export interface Category {
   id: number;
@@ -24,11 +24,29 @@ export class CatalogService {
     { id: 2, treeId: "AVO-001", categoryId: 2 },
   ];
 
-  categoryList(): Category[] {
-    return this.categories;
+  categoryList(search = ""): Category[] {
+    const query = search.trim().toLocaleLowerCase();
+    if (!query) return this.categories;
+
+    return this.categories.filter(
+      ({ name, code }) =>
+        name.toLocaleLowerCase().includes(query) ||
+        code.toLocaleLowerCase().includes(query),
+    );
   }
 
-  treeList(): Tree[] {
-    return this.trees;
+  category(id: number): Category {
+    const category = this.categories.find((item) => item.id === id);
+    if (!category) throw new NotFoundException("Category not found.");
+    return category;
+  }
+
+  treeList(search = ""): Tree[] {
+    const query = search.trim().toLocaleLowerCase();
+    if (!query) return this.trees;
+
+    return this.trees.filter(({ treeId }) =>
+      treeId.toLocaleLowerCase().includes(query),
+    );
   }
 }
