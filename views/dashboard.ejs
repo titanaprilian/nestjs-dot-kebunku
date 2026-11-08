@@ -1,0 +1,50 @@
+<%- include("partials/header", { title, adminName }) %>
+<section class="dashboard-heading d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3 mb-4">
+  <div>
+    <h1 class="h2 mb-1">Overview</h1>
+    <p class="text-body-secondary mb-0">Welcome, <%= adminName %>. Here is the tree registry at a glance.</p>
+  </div>
+  <a class="btn btn-primary" href="/trees/new"><i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add tree</a>
+</section>
+<section class="row row-cols-1 row-cols-sm-2 g-3 mb-4" aria-label="Catalog totals">
+  <div class="col">
+    <article class="summary-card h-100 p-4">
+      <h2 class="h6 text-body-secondary">Total trees</h2>
+      <p class="summary-value mb-1"><%= treeCount %></p>
+      <p class="text-body-secondary mb-0">Trees in the sample catalog</p>
+    </article>
+  </div>
+  <div class="col">
+    <article class="summary-card h-100 p-4">
+      <h2 class="h6 text-body-secondary">Categories</h2>
+      <p class="summary-value mb-1"><%= categoryCount %></p>
+      <p class="text-body-secondary mb-0">Categories in the sample catalog</p>
+    </article>
+  </div>
+</section>
+<section class="registry-section" aria-labelledby="recent-trees-heading">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h2 class="h4 mb-1" id="recent-trees-heading">Recently added</h2>
+      <p class="text-body-secondary small mb-0">Recent records from the in-memory catalog.</p>
+    </div>
+    <a href="/trees">View all trees</a>
+  </div>
+  <% if (recentTrees.length) { %>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr><th scope="col">Tree ID</th><th scope="col">Category</th></tr>
+        </thead>
+        <tbody>
+          <% recentTrees.forEach((tree) => { %>
+            <tr><td><%= tree.treeId %></td><td><span class="badge text-bg-light border"><%= tree.categoryName %></span></td></tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <p class="empty-state text-body-secondary mb-0">No trees have been added yet.</p>
+  <% } %>
+</section>
+<%- include("partials/footer", { adminName }) %>

@@ -8,18 +8,28 @@ export class PagesController {
 
   @Get("login")
   loginPage(@Res() res: Response) {
-    return res.render("login", { title: "Sign in" });
+    return res.render("login", {
+      title: "Sign in",
+      adminName: null,
+    });
   }
+
   @Get()
-  getOverview() {
+  getOverview(@Res() res: Response) {
     const categories = this.catalog.categoryList();
     const trees = this.catalog.treeList();
 
-    return {
-      categories,
-      trees,
+    return res.render("dashboard", {
+      title: "Overview",
+      adminName: "Titan Apriliyan",
       categoryCount: categories.length,
       treeCount: trees.length,
-    };
+      recentTrees: trees.slice(0, 5).map((tree) => ({
+        ...tree,
+        categoryName:
+          categories.find((category) => category.id === tree.categoryId)
+            ?.name ?? "Unknown",
+      })),
+    });
   }
 }

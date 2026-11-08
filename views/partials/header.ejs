@@ -8,11 +8,32 @@
     <link rel="stylesheet" href="/vendor/bootstrap-icons/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
-  <body>
-    <header class="site-header">
-      <a class="site-brand" href="/">
-        <i class="bi bi-tree-fill" aria-hidden="true"></i>
-        <span>Kebunku <small>Tree Admin</small></span>
-      </a>
-    </header>
-    <main class="container py-5">
+  <body class="bg-body-tertiary">
+    <% if (adminName) { %>
+    <div>
+      <aside class="sidebar d-flex flex-column align-items-center text-white p-3 p-lg-4">
+        <a class="site-brand w-100" href="/">
+          <i class="bi bi-tree-fill" aria-hidden="true"></i>
+          <span>Kebunku <small>Tree Admin</small></span>
+        </a>
+        <nav class="d-flex flex-column gap-1 mt-4 w-100" aria-label="Main navigation">
+          <a class="nav-link link-light d-flex align-items-center gap-2 px-3 py-2 <%= title === 'Overview' ? 'active bg-primary rounded' : '' %>" href="/" <%- title === 'Overview' ? 'aria-current="page"' : '' %>><i class="bi bi-speedometer2" aria-hidden="true"></i><span>Overview</span></a>
+          <a class="nav-link link-light d-flex align-items-center gap-2 px-3 py-2 <%= title.toLowerCase().includes('categor') ? 'active bg-primary rounded' : '' %>" href="/categories" <%- title.toLowerCase().includes('categor') ? 'aria-current="page"' : '' %>><i class="bi bi-tags" aria-hidden="true"></i><span>Categories</span></a>
+          <a class="nav-link link-light d-flex align-items-center gap-2 px-3 py-2 <%= title.toLowerCase().includes('tree') ? 'active bg-primary rounded' : '' %>" href="/trees" <%- title.toLowerCase().includes('tree') ? 'aria-current="page"' : '' %>><i class="bi bi-tree" aria-hidden="true"></i><span>Trees</span></a>
+        </nav>
+      </aside>
+      <main class="main-panel d-flex flex-column min-vh-100">
+        <header class="topbar navbar bg-white border-bottom px-3 px-lg-4">
+          <div class="small text-body-secondary">Kebunku <span class="mx-2">/</span><strong class="text-body"><%= title %></strong></div>
+          <span class="small fw-semibold"><%= adminName %></span>
+        </header>
+        <div class="page-content flex-grow-1 mx-auto w-100 p-3 p-lg-4">
+    <% } else { %>
+      <header class="site-header">
+        <a class="site-brand" href="/">
+          <i class="bi bi-tree-fill" aria-hidden="true"></i>
+          <span>Kebunku <small>Tree Admin</small></span>
+        </a>
+      </header>
+      <main class="container py-5">
+    <% } %>
