@@ -68,6 +68,35 @@ erDiagram
   }
 ```
 
+## App screenshots
+
+### Login
+
+![Login page](screenshots/Login.png)
+
+### Dashboard
+
+![Admin dashboard](screenshots/Dashboard.png)
+
+### Categories
+
+![Categories list](screenshots/Category.png)
+
+![Category form](screenshots/Form-Category.png)
+
+### Trees
+
+![Trees list](screenshots/Tree.png)
+
+![Tree form](screenshots/Form-Tree.png)
+
+![Tree details](screenshots/Detail-Tree.png)
+
+## Dependencies
+
+- Runtime: `@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express`, `@nestjs/typeorm`, `typeorm`, `sqlite3`, `ejs`, `express-session`, `bcryptjs`, `bootstrap`, `bootstrap-icons`, `dotenv`, `reflect-metadata`, `rxjs`.
+- Development: `@nestjs/cli`, `typescript`, `@types/ejs`, `@types/express`, `@types/express-session`, `@types/node`.
+
 ## JSON API
 
 All API examples below assume the app is running at `http://localhost:3000`. Set `baseUrl` to another local instance as needed. Both catalog APIs require the admin session cookie; sign in first with `POST /api/auth/login`. Postman stores and sends the `connect.sid` cookie automatically when its cookie jar is enabled. The login route is public, returns `201 Created`, and responds with a safe `{ "admin": { "id", "email", "name" } }` profile.
