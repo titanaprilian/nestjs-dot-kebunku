@@ -6,11 +6,13 @@ import {
 } from "./catalog-api.controller";
 import { Category } from "./category.entity";
 import { CatalogService } from "./catalog.service";
+import { Tree } from "./tree.entity";
+import { SeedService } from "../seed.service";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Category])],
+  imports: [TypeOrmModule.forFeature([Category, Tree])],
   controllers: [CategoriesApiController, TreesApiController],
-  providers: [CatalogService],
+  providers: [CatalogService, SeedService],
   exports: [CatalogService],
 })
 export class CatalogModule {}

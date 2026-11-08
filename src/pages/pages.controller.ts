@@ -238,8 +238,11 @@ export class PagesController {
   }
 
   @Post("trees/:id/delete")
-  deleteTree(@Param("id", ParseIntPipe) id: number, @Res() res: Response) {
-    this.catalog.deleteTree(id);
+  async deleteTree(
+    @Param("id", ParseIntPipe) id: number,
+    @Res() res: Response,
+  ) {
+    await this.catalog.deleteTree(id);
     return res.redirect("/trees");
   }
 

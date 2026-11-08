@@ -6,15 +6,7 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Category } from "./category.entity";
-
-interface Tree {
-  id: number;
-  treeId: string;
-  categoryId: number;
-  plantingDate: string;
-  location: string;
-  imageUrl: string;
-}
+import { Tree } from "./tree.entity";
 
 export function getTreeAge(
   plantingDate: string,
@@ -39,10 +31,9 @@ export class CatalogService {
   constructor(
     @InjectRepository(Category)
     private readonly categories: Repository<Category>,
+    @InjectRepository(Tree)
+    private readonly trees: Repository<Tree>,
   ) {}
-
-  private nextTreeId = 1;
-  private readonly trees: Tree[] = [];
 
   async categoryList(search = "") {
     const query = search.trim().toLocaleLowerCase();
@@ -59,9 +50,7 @@ export class CatalogService {
       )
       .map(({ trees, ...category }) => ({
         ...category,
-        treeCount:
-          trees.length +
-          this.trees.filter((tree) => tree.categoryId === category.id).length,
+        treeCount: trees.length,
       }));
   }
 
@@ -71,15 +60,9 @@ export class CatalogService {
       relations: { trees: true },
     });
     if (!category) throw new NotFoundException("Category not found.");
-    const trees = [
-      ...category.trees,
-      ...this.trees
-        .filter((tree) => tree.categoryId === category.id)
-        .map((tree) => ({ ...tree, category })),
-    ];
     return {
       ...category,
-      trees: trees.map((tree) => this.withAge({ ...tree, category })),
+      trees: category.trees.map((tree) => this.withAge(tree)),
     };
   }
 
@@ -117,11 +100,7 @@ export class CatalogService {
     ) {
       throw new BadRequestException("code must be unique.");
     }
-    if (
-      code !== category.code &&
-      (category.trees.length ||
-        this.trees.some((tree) => tree.categoryId === id))
-    ) {
+    if (code !== category.code && category.trees.length) {
       throw new BadRequestException(
         "A category code cannot change while trees reference the category.",
       );
@@ -143,10 +122,7 @@ export class CatalogService {
       relations: { trees: true },
     });
     if (!category) throw new NotFoundException("Category not found.");
-    if (
-      category.trees.length ||
-      this.trees.some((tree) => tree.categoryId === id)
-    ) {
+    if (category.trees.length) {
       throw new BadRequestException(
         "Move or delete this category’s trees before deleting the category.",
       );
@@ -160,52 +136,65 @@ export class CatalogService {
   }
 
   async treeList(search = "", categoryId?: number) {
-    const query = search.trim().toLocaleLowerCase();
-    const categories = await this.categories.find();
-    return this.trees
-      .filter((tree) => {
-        const matchesSearch =
-          !query ||
-          tree.treeId.toLocaleLowerCase().includes(query) ||
-          tree.location.toLocaleLowerCase().includes(query);
-        return matchesSearch && (!categoryId || tree.categoryId === categoryId);
-      })
-      .flatMap((tree) => {
-        const category = categories.find((item) => item.id === tree.categoryId);
-        return category ? [this.withAge({ ...tree, category })] : [];
-      });
+    const query = search.trim();
+    // FindOptions cannot express the escaped OR search across both columns.
+    const trees = this.trees
+      .createQueryBuilder("tree")
+      .leftJoinAndSelect("tree.category", "category")
+      .orderBy("tree.id", "DESC");
+    if (query) {
+      trees.andWhere(
+        "(tree.treeId LIKE :query ESCAPE '\\' OR tree.location LIKE :query ESCAPE '\\')",
+        { query: `%${this.escapeLike(query)}%` },
+      );
+    }
+    if (categoryId !== undefined) {
+      trees.andWhere("tree.categoryId = :categoryId", { categoryId });
+    }
+    return (await trees.getMany()).map((tree) => this.withAge(tree));
   }
 
   async tree(id: number) {
-    const tree = this.trees.find((item) => item.id === id);
-    if (!tree) throw new NotFoundException("Tree not found.");
-    const category = await this.categories.findOne({
-      where: { id: tree.categoryId },
+    const tree = await this.trees.findOne({
+      where: { id },
+      relations: { category: true },
     });
-    if (!category) throw new NotFoundException("Tree category not found.");
-    return this.withAge({ ...tree, category });
+    if (!tree) throw new NotFoundException("Tree not found.");
+    return this.withAge(tree);
   }
 
   async createTree(input: Record<string, unknown>) {
     const fields = await this.treeFields(input);
-    const tree: Tree = { id: this.nextTreeId++, ...fields };
-    this.trees.push(tree);
-    return this.tree(tree.id);
+    try {
+      const tree = await this.trees.save(this.trees.create(fields));
+      return this.tree(tree.id);
+    } catch (error) {
+      this.throwUnique(error, "treeId must be unique.");
+      throw error;
+    }
   }
 
   async updateTree(id: number, input: Record<string, unknown>) {
-    const tree = this.trees.find((item) => item.id === id);
+    const tree = await this.trees.findOne({
+      where: { id },
+      relations: { category: true },
+    });
     if (!tree) throw new NotFoundException("Tree not found.");
 
-    const fields = await this.treeFields(input, id);
-    Object.assign(tree, fields);
-    return this.tree(id);
+    Object.assign(tree, await this.treeFields(input, id));
+    try {
+      await this.trees.save(tree);
+      return this.tree(id);
+    } catch (error) {
+      this.throwUnique(error, "treeId must be unique.");
+      throw error;
+    }
   }
 
-  deleteTree(id: number): void {
-    const index = this.trees.findIndex((item) => item.id === id);
-    if (index === -1) throw new NotFoundException("Tree not found.");
-    this.trees.splice(index, 1);
+  async deleteTree(id: number): Promise<void> {
+    const tree = await this.trees.findOne({ where: { id } });
+    if (!tree) throw new NotFoundException("Tree not found.");
+    await this.trees.remove(tree);
   }
 
   private async treeFields(input: Record<string, unknown>, excludeId?: number) {
@@ -215,19 +204,17 @@ export class CatalogService {
     const imageUrl = this.imageUrl(input.imageUrl);
     const categoryId = this.categoryId(input.categoryId);
 
-    if (!(await this.categories.exist({ where: { id: categoryId } }))) {
+    const category = await this.categories.findOne({ where: { id: categoryId } });
+    if (!category) {
       throw new BadRequestException(
         "categoryId must reference an existing category.",
       );
     }
-    if (
-      this.trees.some(
-        (tree) => tree.id !== excludeId && tree.treeId === treeId,
-      )
-    ) {
+    const existingTree = await this.trees.findOne({ where: { treeId } });
+    if (existingTree && existingTree.id !== excludeId) {
       throw new BadRequestException("treeId must be unique.");
     }
-    return { treeId, plantingDate, location, imageUrl, categoryId };
+    return { treeId, plantingDate, location, imageUrl, categoryId, category };
   }
 
   private requiredText(value: unknown, field: string, max?: number): string {
@@ -334,11 +321,17 @@ export class CatalogService {
       driverError?: { code?: string; message?: string };
     };
     const description = `${details?.code || ""} ${details?.message || ""} ${details?.driverError?.code || ""} ${details?.driverError?.message || ""}`;
-    if (/foreign key constraint|SQLITE_CONSTRAINT_FOREIGNKEY/i.test(description)) {
+    if (
+      /foreign key constraint|SQLITE_CONSTRAINT_FOREIGNKEY/i.test(description)
+    ) {
       throw new BadRequestException(
         "Move or delete this category’s trees before deleting the category.",
       );
     }
+  }
+
+  private escapeLike(value: string): string {
+    return value.replace(/[\\%_]/g, "\\$&");
   }
 
   private withAge<T extends Tree & { category?: Category }>(tree: T) {
