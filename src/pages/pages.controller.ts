@@ -172,6 +172,69 @@ export class PagesController {
     };
   }
 
+  @Post("trees")
+  createTree(@Body() body: Record<string, unknown>, @Res() res: Response) {
+    try {
+      const tree = this.catalog.createTree(body);
+      return res.redirect(`/trees/${tree.id}`);
+    } catch (error) {
+      if (!(error instanceof BadRequestException)) throw error;
+      return res.status(400).render("tree-form", {
+        title: "New tree",
+        adminName: "Titan Apriliyan",
+        tree: {
+          id: null,
+          treeId: typeof body.treeId === "string" ? body.treeId : "",
+          plantingDate:
+            typeof body.plantingDate === "string" ? body.plantingDate : "",
+          location: typeof body.location === "string" ? body.location : "",
+          imageUrl: typeof body.imageUrl === "string" ? body.imageUrl : "",
+          categoryId: Number(body.categoryId) || null,
+        },
+        categories: this.catalog.categoryList(),
+        selectedCategoryId: Number(body.categoryId) || null,
+        error: error.message,
+      });
+    }
+  }
+
+  @Post("trees/:id")
+  updateTree(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() body: Record<string, unknown>,
+    @Res() res: Response,
+  ) {
+    const existingTree = this.catalog.tree(id);
+    try {
+      const updatedTree = this.catalog.updateTree(id, body);
+      return res.redirect(`/trees/${updatedTree.id}`);
+    } catch (error) {
+      if (!(error instanceof BadRequestException)) throw error;
+      return res.status(400).render("tree-form", {
+        title: "Edit tree",
+        adminName: "Titan Apriliyan",
+        tree: {
+          ...existingTree,
+          treeId: typeof body.treeId === "string" ? body.treeId : "",
+          plantingDate:
+            typeof body.plantingDate === "string" ? body.plantingDate : "",
+          location: typeof body.location === "string" ? body.location : "",
+          imageUrl: typeof body.imageUrl === "string" ? body.imageUrl : "",
+          categoryId: Number(body.categoryId) || null,
+        },
+        categories: this.catalog.categoryList(),
+        selectedCategoryId: Number(body.categoryId) || null,
+        error: error.message,
+      });
+    }
+  }
+
+  @Post("trees/:id/delete")
+  deleteTree(@Param("id", ParseIntPipe) id: number, @Res() res: Response) {
+    this.catalog.deleteTree(id);
+    return res.redirect("/trees");
+  }
+
   @Get("trees/new")
   @Render("tree-form")
   newTreePage(@Query("categoryId") categoryId?: string) {
@@ -181,6 +244,7 @@ export class PagesController {
       tree: null,
       categories: this.catalog.categoryList(),
       selectedCategoryId: Number(categoryId) || null,
+      error: null,
     };
   }
 
@@ -193,6 +257,7 @@ export class PagesController {
       tree: this.catalog.tree(id),
       categories: this.catalog.categoryList(),
       selectedCategoryId: null,
+      error: null,
     };
   }
 
@@ -203,6 +268,7 @@ export class PagesController {
       title: "Tree details",
       adminName: "Titan Apriliyan",
       tree: this.catalog.tree(id),
+      error: null,
     };
   }
 }

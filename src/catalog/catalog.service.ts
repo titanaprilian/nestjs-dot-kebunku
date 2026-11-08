@@ -22,6 +22,7 @@ export interface Tree {
 @Injectable()
 export class CatalogService {
   private nextCategoryId = 3;
+  private nextTreeId = 3;
   private readonly categories: Category[] = [
     { id: 1, name: "Mango", code: "MNG" },
     { id: 2, name: "Avocado", code: "AVO" },
@@ -180,4 +181,105 @@ export class CatalogService {
       )!,
     };
   }
+  createTree(input: Record<string, unknown>) {
+    const fields = this.treeFields(input);
+    const tree: Tree = { id: this.nextTreeId++, ...fields };
+    this.trees.push(tree);
+    return this.tree(tree.id);
+  }
+
+  updateTree(id: number, input: Record<string, unknown>) {
+    const tree = this.trees.find((item) => item.id === id);
+    if (!tree) throw new NotFoundException("Tree not found.");
+
+    const fields = this.treeFields(input, id);
+    Object.assign(tree, fields);
+    return this.tree(id);
+  }
+
+  deleteTree(id: number): void {
+    const index = this.trees.findIndex((item) => item.id === id);
+    if (index === -1) throw new NotFoundException("Tree not found.");
+    this.trees.splice(index, 1);
+  }
+
+  private treeFields(input: Record<string, unknown>, excludeId?: number) {
+    const treeId = this.requiredText(input.treeId, "treeId").toUpperCase();
+    const plantingDate = this.plantingDate(input.plantingDate);
+    const location = this.requiredText(input.location, "location");
+    const imageUrl = this.imageUrl(input.imageUrl);
+    const categoryId = this.categoryId(input.categoryId);
+
+    if (!this.categories.some((category) => category.id === categoryId)) {
+      throw new BadRequestException(
+        "categoryId must reference an existing category.",
+      );
+    }
+    if (
+      this.trees.some(
+        (tree) => tree.id !== excludeId && tree.treeId === treeId,
+      )
+    ) {
+      throw new BadRequestException("treeId must be unique.");
+    }
+    return { treeId, plantingDate, location, imageUrl, categoryId };
+  }
+
+  private plantingDate(value: unknown): string {
+    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      throw new BadRequestException(
+        "plantingDate must be a valid YYYY-MM-DD date.",
+      );
+    }
+    const parsed = new Date(`${value}T00:00:00.000Z`);
+    if (
+      Number.isNaN(parsed.getTime()) ||
+      parsed.toISOString().slice(0, 10) !== value
+    ) {
+      throw new BadRequestException(
+        "plantingDate must be a valid YYYY-MM-DD date.",
+      );
+    }
+    if (value > new Date().toISOString().slice(0, 10)) {
+      throw new BadRequestException("plantingDate cannot be in the future.");
+    }
+    return value;
+  }
+
+  private imageUrl(value: unknown): string {
+    if (value === undefined || value === null || value === "") return "";
+    if (typeof value !== "string") {
+      throw new BadRequestException(
+        "imageUrl must be an absolute HTTP(S) URL.",
+      );
+    }
+    const trimmed = value.trim();
+    if (!trimmed) return "";
+    try {
+      const url = new URL(trimmed);
+      if (
+        (url.protocol !== "http:" && url.protocol !== "https:") ||
+        !url.hostname
+      ) {
+        throw new Error("invalid URL");
+      }
+    } catch {
+      throw new BadRequestException(
+        "imageUrl must be an absolute HTTP(S) URL.",
+      );
+    }
+    return trimmed;
+  }
+
+  private categoryId(value: unknown): number {
+    const categoryId = typeof value === "number" ? value : Number(value);
+    if (!Number.isInteger(categoryId) || categoryId < 1) {
+      throw new BadRequestException(
+        "categoryId must reference an existing category.",
+      );
+    }
+    return categoryId;
+  }
+
 }
+
