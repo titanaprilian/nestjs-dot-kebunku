@@ -1,0 +1,10 @@
+<%- include("partials/header", { title, adminName }) %>
+<section class="card mx-auto" style="max-width: 42rem">
+  <div class="card-body p-4 p-md-5">
+    <p class="text-body-secondary mb-2">Error <%= statusCode %></p>
+    <h1 class="h2 mb-3"><%= error %></h1>
+    <p class="mb-4"><%= message %></p>
+    <a class="btn btn-outline-primary" href="/">Return to overview</a>
+  </div>
+</section>
+<%- include("partials/footer", { adminName }) %>
