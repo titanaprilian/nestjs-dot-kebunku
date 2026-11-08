@@ -21,10 +21,10 @@
   <% if (category.trees.length) { %>
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
-        <thead class="table-light"><tr><th scope="col">Tree ID</th><th scope="col">Location</th><th scope="col">Planting date</th><th scope="col"><span class="visually-hidden">Details</span></th></tr></thead>
+        <thead class="table-light"><tr><th scope="col">Tree ID</th><th scope="col">Location</th><th scope="col">Age</th><th scope="col"><span class="visually-hidden">Details</span></th></tr></thead>
         <tbody>
           <% category.trees.forEach((tree) => { %>
-            <tr><td><a href="/trees/<%= tree.id %>"><%= tree.treeId %></a></td><td class="text-body-secondary"><%= tree.location %></td><td><%= tree.plantingDate %></td><td><a class="btn btn-sm btn-outline-secondary" href="/trees/<%= tree.id %>">View</a></td></tr>
+            <tr><td><a href="/trees/<%= tree.id %>"><%= tree.treeId %></a></td><td class="text-body-secondary"><%= tree.location %></td><td><%= tree.age.years %> years, <%= tree.age.months %> months</td><td><a class="btn btn-sm btn-outline-secondary" href="/trees/<%= tree.id %>">View</a></td></tr>
           <% }) %>
         </tbody>
       </table>

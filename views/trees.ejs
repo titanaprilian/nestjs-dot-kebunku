@@ -18,14 +18,14 @@
   <% if (trees.length) { %>
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
-        <thead class="table-light"><tr><th scope="col">Tree ID</th><th scope="col">Category</th><th scope="col">Location</th><th scope="col">Planting date</th><th scope="col"><span class="visually-hidden">Details</span></th></tr></thead>
+        <thead class="table-light"><tr><th scope="col">Tree ID</th><th scope="col">Category</th><th scope="col">Location</th><th scope="col">Age</th><th scope="col"><span class="visually-hidden">Details</span></th></tr></thead>
         <tbody>
           <% trees.forEach((tree) => { %>
             <tr>
               <td><a class="fw-semibold" href="/trees/<%= tree.id %>"><%= tree.treeId %></a></td>
               <td><a class="badge text-bg-light border text-decoration-none" href="/trees?categoryId=<%= tree.category.id %>"><%= tree.category.name %></a></td>
               <td class="text-body-secondary"><%= tree.location %></td>
-              <td><%= tree.plantingDate %></td>
+              <td><%= tree.age.years %> years, <%= tree.age.months %> months</td>
               <td><a class="btn btn-sm btn-outline-secondary" href="/trees/<%= tree.id %>">View</a></td>
             </tr>
           <% }) %>

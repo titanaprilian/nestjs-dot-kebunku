@@ -19,6 +19,24 @@ export interface Tree {
   imageUrl: string;
 }
 
+export function getTreeAge(
+  plantingDate: string,
+  today = new Date(),
+): { years: number; months: number } {
+  const [plantingYear, plantingMonth, plantingDay] = plantingDate
+    .split("-")
+    .map(Number);
+  let completedMonths =
+    (today.getUTCFullYear() - plantingYear) * 12 +
+    (today.getUTCMonth() + 1 - plantingMonth);
+  if (today.getUTCDate() < plantingDay) completedMonths--;
+  completedMonths = Math.max(0, completedMonths);
+  return {
+    years: Math.floor(completedMonths / 12),
+    months: completedMonths % 12,
+  };
+}
+
 @Injectable()
 export class CatalogService {
   private nextCategoryId = 3;
@@ -70,7 +88,7 @@ export class CatalogService {
       ...category,
       trees: this.trees
         .filter((tree) => tree.categoryId === category.id)
-        .map((tree) => ({ ...tree, category })),
+        .map((tree) => this.withAge({ ...tree, category })),
     };
   }
 
@@ -163,23 +181,25 @@ export class CatalogService {
           tree.location.toLocaleLowerCase().includes(query);
         return matchesSearch && (!categoryId || tree.categoryId === categoryId);
       })
-      .map((tree) => ({
-        ...tree,
-        category: this.categories.find(
-          (category) => category.id === tree.categoryId,
-        )!,
-      }));
+      .map((tree) =>
+        this.withAge({
+          ...tree,
+          category: this.categories.find(
+            (category) => category.id === tree.categoryId,
+          )!,
+        }),
+      );
   }
 
   tree(id: number) {
     const tree = this.trees.find((item) => item.id === id);
     if (!tree) throw new NotFoundException("Tree not found.");
-    return {
+    return this.withAge({
       ...tree,
       category: this.categories.find(
         (category) => category.id === tree.categoryId,
       )!,
-    };
+    });
   }
   createTree(input: Record<string, unknown>) {
     const fields = this.treeFields(input);
@@ -279,6 +299,12 @@ export class CatalogService {
       );
     }
     return categoryId;
+  }
+
+  private withAge<T extends Tree>(tree: T): T & {
+    age: { years: number; months: number };
+  } {
+    return { ...tree, age: getTreeAge(tree.plantingDate) };
   }
 
 }

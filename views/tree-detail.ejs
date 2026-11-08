@@ -17,6 +17,7 @@
   <div class="col-12 col-lg-7"><section class="card h-100"><div class="card-header bg-white"><h2 class="h5 mb-0">Tree information</h2></div><div class="card-body"><dl class="row g-2 mb-0">
     <dt class="col-5 text-body-secondary">Tree ID</dt><dd class="col-7 text-break text-sm-end"><%= tree.treeId %></dd>
     <dt class="col-5 text-body-secondary">Planting date</dt><dd class="col-7 text-break text-sm-end"><%= tree.plantingDate %></dd>
+    <dt class="col-5 text-body-secondary">Age</dt><dd class="col-7 text-break text-sm-end"><%= tree.age.years %> years, <%= tree.age.months %> months</dd>
     <dt class="col-5 text-body-secondary">Location</dt><dd class="col-7 text-break text-sm-end"><%= tree.location %></dd>
     <dt class="col-5 text-body-secondary">Category</dt><dd class="col-7 text-break text-sm-end"><a href="/categories/<%= tree.category.id %>"><%= tree.category.name %></a></dd>
     <dt class="col-5 text-body-secondary">Image URL</dt><dd class="col-7 text-break text-sm-end"><%= tree.imageUrl || "Not provided" %></dd>
