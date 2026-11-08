@@ -1,0 +1,20 @@
+<%- include("partials/header", { title, adminName }) %>
+<p class="mb-3"><a href="/trees">← All trees</a></p>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <div><p class="text-body-secondary small mb-1">Tree #<%= tree.id %></p><h1 class="h2 mb-1"><%= tree.treeId %></h1><p class="text-body-secondary mb-0">Tree registry details.</p></div>
+  <a class="btn btn-outline-secondary" href="/trees/<%= tree.id %>/edit">Edit tree</a>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-12 col-lg-5"><section class="card h-100"><div class="card-body">
+    <% if (tree.imageUrl) { %><img class="img-fluid rounded mb-3" src="<%= tree.imageUrl %>" alt="Tree <%= tree.treeId %>"><% } else { %><div class="d-flex w-100 align-items-center justify-content-center display-1 rounded bg-body-secondary mb-3" role="img" aria-label="Tree image unavailable">🌳</div><% } %>
+    <h2 class="h4"><%= tree.treeId %></h2><p class="text-body-secondary mb-2"><%= tree.location %></p><a class="badge text-bg-light border text-decoration-none" href="/categories/<%= tree.category.id %>"><%= tree.category.name %></a>
+  </div></section></div>
+  <div class="col-12 col-lg-7"><section class="card h-100"><div class="card-header bg-white"><h2 class="h5 mb-0">Tree information</h2></div><div class="card-body"><dl class="row g-2 mb-0">
+    <dt class="col-5 text-body-secondary">Tree ID</dt><dd class="col-7 text-break text-sm-end"><%= tree.treeId %></dd>
+    <dt class="col-5 text-body-secondary">Planting date</dt><dd class="col-7 text-break text-sm-end"><%= tree.plantingDate %></dd>
+    <dt class="col-5 text-body-secondary">Location</dt><dd class="col-7 text-break text-sm-end"><%= tree.location %></dd>
+    <dt class="col-5 text-body-secondary">Category</dt><dd class="col-7 text-break text-sm-end"><a href="/categories/<%= tree.category.id %>"><%= tree.category.name %></a></dd>
+    <dt class="col-5 text-body-secondary">Image URL</dt><dd class="col-7 text-break text-sm-end"><%= tree.imageUrl || "Not provided" %></dd>
+  </dl></div></section></div>
+</div>
+<%- include("partials/footer", { adminName }) %>

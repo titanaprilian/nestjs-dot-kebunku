@@ -1,0 +1,43 @@
+<%- include("partials/header", { title, adminName }) %>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+  <div>
+    <h1 class="h2 mb-1">Categories</h1>
+    <p class="text-body-secondary mb-0">Browse the tree registry categories.</p>
+  </div>
+  <a class="btn btn-primary" href="/categories/new">New category</a>
+</div>
+<section class="card mb-4">
+  <div class="card-header bg-white">
+    <h2 class="h5 mb-1">All categories <span class="badge text-bg-secondary"><%= categories.length %></span></h2>
+    <p class="text-body-secondary small mb-0">Search by category name or code.</p>
+  </div>
+  <div class="card-body border-bottom">
+    <form class="row g-2" action="/categories" method="get">
+      <div class="col-12 col-md"><label class="form-label" for="category-search">Search categories</label><input class="form-control" id="category-search" name="search" type="search" value="<%= search %>" placeholder="Search categories..."></div>
+      <div class="col-12 col-md-auto"><button class="btn btn-secondary w-100" type="submit">Search</button></div>
+    </form>
+  </div>
+  <% if (categories.length) { %>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light"><tr><th scope="col">Category</th><th scope="col">Code</th><th scope="col">Trees</th><th scope="col"><span class="visually-hidden">Details</span></th></tr></thead>
+        <tbody>
+          <% categories.forEach((category) => { %>
+            <tr>
+              <td><a class="fw-semibold" href="/categories/<%= category.id %>"><%= category.name %></a></td>
+              <td class="text-body-secondary"><%= category.code %></td>
+              <td><span class="badge text-bg-light border"><%= category.treeCount %> trees</span></td>
+              <td><a class="btn btn-sm btn-outline-secondary" href="/categories/<%= category.id %>">View</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="text-center p-5">
+      <p class="text-body-secondary mb-3"><%= search ? "No categories match your search." : "No categories yet." %></p>
+      <% if (search) { %><a class="btn btn-outline-secondary" href="/categories">Clear search</a><% } else { %><a class="btn btn-primary" href="/categories/new">New category</a><% } %>
+    </div>
+  <% } %>
+</section>
+<%- include("partials/footer", { adminName }) %>

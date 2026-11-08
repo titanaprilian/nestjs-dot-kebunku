@@ -1,0 +1,30 @@
+<%- include("partials/header", { title, adminName }) %>
+<p class="mb-3"><a href="/categories">← All categories</a></p>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <div>
+    <h1 class="h2 mb-1"><%= category.name %></h1>
+    <p class="text-body-secondary mb-0">Category code: <strong><%= category.code %></strong></p>
+  </div>
+  <a class="btn btn-outline-secondary" href="/categories/<%= category.id %>/edit">Edit category</a>
+</div>
+<section class="card mb-4">
+  <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div><h2 class="h5 mb-1">Trees in this category</h2><p class="text-body-secondary small mb-0">Registered sample trees.</p></div>
+    <a class="btn btn-primary btn-sm" href="/trees/new?categoryId=<%= category.id %>">Add tree</a>
+  </div>
+  <% if (category.trees.length) { %>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light"><tr><th scope="col">Tree ID</th><th scope="col">Location</th><th scope="col">Planting date</th><th scope="col"><span class="visually-hidden">Details</span></th></tr></thead>
+        <tbody>
+          <% category.trees.forEach((tree) => { %>
+            <tr><td><a href="/trees/<%= tree.id %>"><%= tree.treeId %></a></td><td class="text-body-secondary"><%= tree.location %></td><td><%= tree.plantingDate %></td><td><a class="btn btn-sm btn-outline-secondary" href="/trees/<%= tree.id %>">View</a></td></tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <p class="text-center text-body-secondary p-5 mb-0">No trees in this category yet.</p>
+  <% } %>
+</section>
+<%- include("partials/footer", { adminName }) %>
