@@ -6,6 +6,39 @@ NestJS admin for Kebunku that organize your tree and it's category. Use EJS for 
 
 ## Requirements and setup
 
+### Prerequisites
+
+- Node.js**: v18 or higher (LTS recommended)
+- npm: v9 or higher
+
+### Step-by-step Local Setup
+
+1. Install dependencies
+   ```bash
+   npm install
+   ```
+2. Configure environment variables
+   ```bash
+   cp .env.example .env
+   ```
+3. Build the application
+   ```bash
+   npm run build
+   ```
+4. Development mode
+   ```bash
+   npm run start:dev
+   ```
+5. Production mode
+   ```bash
+   npm run start:prd
+   ```
+6. Access the web
+   Open your browser and navigate
+   ```bash
+   http://localhost:3000
+   ```
+
 ## Database design
 
 ```mermaid
