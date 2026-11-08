@@ -4,6 +4,7 @@ import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { Category } from "./catalog/category.entity";
 import { Tree } from "./catalog/tree.entity";
+import { CreateCatalogTables1794000000000 } from "./migrations/create-catalog-tables.migration";
 import { PagesModule } from "./pages/pages.module";
 
 const databaseFile = process.env.DATABASE_PATH || "data/admin.sqlite";
@@ -15,7 +16,9 @@ mkdirSync(dirname(resolve(databaseFile)), { recursive: true });
       type: "sqlite",
       database: databaseFile,
       entities: [Category, Tree],
-      synchronize: true,
+      migrations: [CreateCatalogTables1794000000000],
+      migrationsRun: true,
+      synchronize: false,
     }),
     PagesModule,
   ],
