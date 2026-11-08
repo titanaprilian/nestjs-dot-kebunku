@@ -26,9 +26,11 @@ export class PagesController {
   }
 
   @Get()
-  getOverview(@Res() res: Response) {
-    const categories = this.catalog.categoryList();
-    const trees = this.catalog.treeList();
+  async getOverview(@Res() res: Response) {
+    const [categories, trees] = await Promise.all([
+      this.catalog.categoryList(),
+      this.catalog.treeList(),
+    ]);
 
     return res.render("dashboard", {
       title: "Overview",
@@ -44,11 +46,11 @@ export class PagesController {
 
   @Get("categories")
   @Render("categories")
-  categoriesPage(@Query("search") search = "") {
+  async categoriesPage(@Query("search") search = "") {
     return {
       title: "Categories",
       adminName: "Titan Apriliyan",
-      categories: this.catalog.categoryList(search),
+      categories: await this.catalog.categoryList(search),
       search,
     };
   }
@@ -66,9 +68,12 @@ export class PagesController {
   }
 
   @Post("categories")
-  createCategory(@Body() body: Record<string, unknown>, @Res() res: Response) {
+  async createCategory(
+    @Body() body: Record<string, unknown>,
+    @Res() res: Response,
+  ) {
     try {
-      this.catalog.createCategory(body);
+      await this.catalog.createCategory(body);
       return res.redirect("/categories");
     } catch (error) {
       if (!(error instanceof BadRequestException)) throw error;
@@ -88,25 +93,25 @@ export class PagesController {
 
   @Get("categories/:id/edit")
   @Render("category-form")
-  editCategoryPage(@Param("id", ParseIntPipe) id: number) {
+  async editCategoryPage(@Param("id", ParseIntPipe) id: number) {
     return {
       title: "Edit category",
       adminName: "Titan Apriliyan",
       categoryId: id,
-      category: this.catalog.category(id),
+      category: await this.catalog.category(id),
       error: null,
     };
   }
 
   @Post("categories/:id")
-  updateCategory(
+  async updateCategory(
     @Param("id", ParseIntPipe) id: number,
     @Body() body: Record<string, unknown>,
     @Res() res: Response,
   ) {
-    const existingCategory = this.catalog.category(id);
+    const existingCategory = await this.catalog.category(id);
     try {
-      this.catalog.updateCategory(id, body);
+      await this.catalog.updateCategory(id, body);
       return res.redirect(`/categories/${id}`);
     } catch (error) {
       if (!(error instanceof BadRequestException)) throw error;
@@ -125,57 +130,60 @@ export class PagesController {
   }
 
   @Post("categories/:id/delete")
-  deleteCategory(
+  async deleteCategory(
     @Param("id", ParseIntPipe) id: number,
     @Res() res: Response,
   ) {
     try {
-      this.catalog.deleteCategory(id);
+      await this.catalog.deleteCategory(id);
       return res.redirect("/categories");
     } catch (error) {
       if (!(error instanceof BadRequestException)) throw error;
       return res.status(400).render("category-detail", {
         title: "Category details",
         adminName: "Titan Apriliyan",
-        category: this.catalog.category(id),
+        category: await this.catalog.category(id),
         error: error.message,
       });
     }
   }
 
-
   @Get("categories/:id")
   @Render("category-detail")
-  categoryPage(@Param("id", ParseIntPipe) id: number) {
+  async categoryPage(@Param("id", ParseIntPipe) id: number) {
     return {
       title: "Category details",
       adminName: "Titan Apriliyan",
-      category: this.catalog.category(id),
+      category: await this.catalog.category(id),
       error: null,
     };
   }
 
   @Get("trees")
   @Render("trees")
-  treesPage(
+  async treesPage(
     @Query("search") search = "",
     @Query("categoryId") categoryId?: string,
   ) {
     const parsedCategoryId = Number(categoryId) || null;
+    const [trees, categories] = await Promise.all([
+      this.catalog.treeList(search, parsedCategoryId ?? undefined),
+      this.catalog.categoryList(),
+    ]);
     return {
       title: "Trees",
       adminName: "Titan Apriliyan",
-      trees: this.catalog.treeList(search, parsedCategoryId ?? undefined),
-      categories: this.catalog.categoryList(),
+      trees,
+      categories,
       search,
       categoryId: parsedCategoryId,
     };
   }
 
   @Post("trees")
-  createTree(@Body() body: Record<string, unknown>, @Res() res: Response) {
+  async createTree(@Body() body: Record<string, unknown>, @Res() res: Response) {
     try {
-      const tree = this.catalog.createTree(body);
+      const tree = await this.catalog.createTree(body);
       return res.redirect(`/trees/${tree.id}`);
     } catch (error) {
       if (!(error instanceof BadRequestException)) throw error;
@@ -191,7 +199,7 @@ export class PagesController {
           imageUrl: typeof body.imageUrl === "string" ? body.imageUrl : "",
           categoryId: Number(body.categoryId) || null,
         },
-        categories: this.catalog.categoryList(),
+        categories: await this.catalog.categoryList(),
         selectedCategoryId: Number(body.categoryId) || null,
         error: error.message,
       });
@@ -199,14 +207,14 @@ export class PagesController {
   }
 
   @Post("trees/:id")
-  updateTree(
+  async updateTree(
     @Param("id", ParseIntPipe) id: number,
     @Body() body: Record<string, unknown>,
     @Res() res: Response,
   ) {
-    const existingTree = this.catalog.tree(id);
+    const existingTree = await this.catalog.tree(id);
     try {
-      const updatedTree = this.catalog.updateTree(id, body);
+      const updatedTree = await this.catalog.updateTree(id, body);
       return res.redirect(`/trees/${updatedTree.id}`);
     } catch (error) {
       if (!(error instanceof BadRequestException)) throw error;
@@ -222,7 +230,7 @@ export class PagesController {
           imageUrl: typeof body.imageUrl === "string" ? body.imageUrl : "",
           categoryId: Number(body.categoryId) || null,
         },
-        categories: this.catalog.categoryList(),
+        categories: await this.catalog.categoryList(),
         selectedCategoryId: Number(body.categoryId) || null,
         error: error.message,
       });
@@ -237,12 +245,12 @@ export class PagesController {
 
   @Get("trees/new")
   @Render("tree-form")
-  newTreePage(@Query("categoryId") categoryId?: string) {
+  async newTreePage(@Query("categoryId") categoryId?: string) {
     return {
       title: "New tree",
       adminName: "Titan Apriliyan",
       tree: null,
-      categories: this.catalog.categoryList(),
+      categories: await this.catalog.categoryList(),
       selectedCategoryId: Number(categoryId) || null,
       error: null,
     };
@@ -250,12 +258,12 @@ export class PagesController {
 
   @Get("trees/:id/edit")
   @Render("tree-form")
-  editTreePage(@Param("id", ParseIntPipe) id: number) {
+  async editTreePage(@Param("id", ParseIntPipe) id: number) {
     return {
       title: "Edit tree",
       adminName: "Titan Apriliyan",
-      tree: this.catalog.tree(id),
-      categories: this.catalog.categoryList(),
+      tree: await this.catalog.tree(id),
+      categories: await this.catalog.categoryList(),
       selectedCategoryId: null,
       error: null,
     };
@@ -263,11 +271,11 @@ export class PagesController {
 
   @Get("trees/:id")
   @Render("tree-detail")
-  treePage(@Param("id", ParseIntPipe) id: number) {
+  async treePage(@Param("id", ParseIntPipe) id: number) {
     return {
       title: "Tree details",
       adminName: "Titan Apriliyan",
-      tree: this.catalog.tree(id),
+      tree: await this.catalog.tree(id),
       error: null,
     };
   }
