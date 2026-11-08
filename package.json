@@ -26,11 +26,17 @@
     "@nestjs/common": "^12.4.0",
     "@nestjs/core": "^12.4.0",
     "@nestjs/platform-express": "^12.4.0",
+    "@nestjs/typeorm": "^12.0.3",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.2",
     "dotenv": "^18.0.9",
     "ejs": "^7.0.2",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2"
+    "rxjs": "^7.8.2",
+    "sqlite3": "^6.0.1",
+    "typeorm": "^0.3.31"
+  },
+  "allowScripts": {
+    "sqlite3@6.0.1": true
   }
 }
