@@ -1,17 +1,19 @@
 <%- include("partials/header", { title, adminName }) %>
 <section class="login-panel">
   <h1><%= title %> to Kebunku Admin</h1>
-  <p class="text-body-secondary">This sign-in form is a preview. Authentication is not available yet.</p>
-  <form action="#" method="get">
+  <% if (error) { %>
+  <p class="text-danger" role="alert"><%= error %></p>
+  <% } %>
+  <form action="/login" method="post">
     <div class="mb-3">
       <label class="form-label" for="email">Email address</label>
-      <input class="form-control" type="email" id="email" name="email" autocomplete="username" placeholder="you@example.com" />
+      <input class="form-control" type="email" id="email" name="email" autocomplete="username" placeholder="you@example.com" value="<%= email %>" required />
     </div>
     <div class="mb-3">
       <label class="form-label" for="password">Password</label>
-      <input class="form-control" type="password" id="password" name="password" autocomplete="current-password" />
+      <input class="form-control" type="password" id="password" name="password" autocomplete="current-password" required />
     </div>
-    <button class="btn btn-primary w-100" type="submit">Preview sign in</button>
+    <button class="btn btn-primary w-100" type="submit">Sign in</button>
   </form>
 </section>
 <%- include("partials/footer", { adminName }) %>

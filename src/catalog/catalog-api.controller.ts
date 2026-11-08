@@ -4,9 +4,12 @@ import {
   Param,
   ParseIntPipe,
   Query,
+  UseGuards,
 } from "@nestjs/common";
+import { SessionAuthGuard } from "../common/session-auth.guard";
 import { CatalogService } from "./catalog.service";
 
+@UseGuards(SessionAuthGuard)
 @Controller("api/categories")
 export class CategoriesApiController {
   constructor(private readonly catalog: CatalogService) {}
@@ -22,6 +25,7 @@ export class CategoriesApiController {
   }
 }
 
+@UseGuards(SessionAuthGuard)
 @Controller("api/trees")
 export class TreesApiController {
   constructor(private readonly catalog: CatalogService) {}

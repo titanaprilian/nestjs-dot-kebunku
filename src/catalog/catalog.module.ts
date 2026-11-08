@@ -4,15 +4,17 @@ import {
   CategoriesApiController,
   TreesApiController,
 } from "./catalog-api.controller";
+import { Admin } from "../auth/admin.entity";
+import { SeedService } from "../seed.service";
+import { SessionAuthGuard } from "../common/session-auth.guard";
 import { Category } from "./category.entity";
 import { CatalogService } from "./catalog.service";
 import { Tree } from "./tree.entity";
-import { SeedService } from "../seed.service";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Category, Tree])],
+  imports: [TypeOrmModule.forFeature([Admin, Category, Tree])],
   controllers: [CategoriesApiController, TreesApiController],
-  providers: [CatalogService, SeedService],
-  exports: [CatalogService],
+  providers: [CatalogService, SeedService, SessionAuthGuard],
+  exports: [CatalogService, SessionAuthGuard],
 })
 export class CatalogModule {}

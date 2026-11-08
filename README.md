@@ -4,6 +4,9 @@ NestJS admin for Kebunku that organize your tree and it's category. Use EJS for 
 
 ## Main Features
 
+- Categories and trees persist through TypeORM repositories. Dashboard, category, and tree pages and forms require an authenticated admin session; signed-out browser requests redirect to `/login`.
+- Category search matches name/code; tree search matches tree ID/location and supports a category filter. Tree ages are computed from planting dates using UTC and are not stored.
+
 ## Requirements and setup
 
 ### Prerequisites

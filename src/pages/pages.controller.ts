@@ -9,21 +9,16 @@ import {
   Query,
   Render,
   Res,
+  UseGuards,
 } from "@nestjs/common";
 import { Response } from "express";
+import { SessionAuthGuard } from "../common/session-auth.guard";
 import { CatalogService } from "../catalog/catalog.service";
 
+@UseGuards(SessionAuthGuard)
 @Controller()
 export class PagesController {
   constructor(private readonly catalog: CatalogService) {}
-
-  @Get("login")
-  loginPage(@Res() res: Response) {
-    return res.render("login", {
-      title: "Sign in",
-      adminName: null,
-    });
-  }
 
   @Get()
   async getOverview(@Res() res: Response) {
@@ -34,7 +29,6 @@ export class PagesController {
 
     return res.render("dashboard", {
       title: "Overview",
-      adminName: "Titan Apriliyan",
       categoryCount: categories.length,
       treeCount: trees.length,
       recentTrees: trees.slice(0, 5).map((tree) => ({
@@ -49,7 +43,6 @@ export class PagesController {
   async categoriesPage(@Query("search") search = "") {
     return {
       title: "Categories",
-      adminName: "Titan Apriliyan",
       categories: await this.catalog.categoryList(search),
       search,
     };
@@ -60,7 +53,6 @@ export class PagesController {
   newCategoryPage() {
     return {
       title: "New category",
-      adminName: "Titan Apriliyan",
       categoryId: null,
       category: null,
       error: null,
@@ -79,7 +71,6 @@ export class PagesController {
       if (!(error instanceof BadRequestException)) throw error;
       return res.status(400).render("category-form", {
         title: "New category",
-        adminName: "Titan Apriliyan",
         categoryId: null,
         category: {
           name: typeof body.name === "string" ? body.name : "",
@@ -96,7 +87,6 @@ export class PagesController {
   async editCategoryPage(@Param("id", ParseIntPipe) id: number) {
     return {
       title: "Edit category",
-      adminName: "Titan Apriliyan",
       categoryId: id,
       category: await this.catalog.category(id),
       error: null,
@@ -117,7 +107,6 @@ export class PagesController {
       if (!(error instanceof BadRequestException)) throw error;
       return res.status(400).render("category-form", {
         title: "Edit category",
-        adminName: "Titan Apriliyan",
         category: {
           ...existingCategory,
           name: typeof body.name === "string" ? body.name : "",
@@ -141,7 +130,6 @@ export class PagesController {
       if (!(error instanceof BadRequestException)) throw error;
       return res.status(400).render("category-detail", {
         title: "Category details",
-        adminName: "Titan Apriliyan",
         category: await this.catalog.category(id),
         error: error.message,
       });
@@ -153,7 +141,6 @@ export class PagesController {
   async categoryPage(@Param("id", ParseIntPipe) id: number) {
     return {
       title: "Category details",
-      adminName: "Titan Apriliyan",
       category: await this.catalog.category(id),
       error: null,
     };
@@ -172,7 +159,6 @@ export class PagesController {
     ]);
     return {
       title: "Trees",
-      adminName: "Titan Apriliyan",
       trees,
       categories,
       search,
@@ -189,7 +175,6 @@ export class PagesController {
       if (!(error instanceof BadRequestException)) throw error;
       return res.status(400).render("tree-form", {
         title: "New tree",
-        adminName: "Titan Apriliyan",
         tree: {
           id: null,
           treeId: typeof body.treeId === "string" ? body.treeId : "",
@@ -220,7 +205,6 @@ export class PagesController {
       if (!(error instanceof BadRequestException)) throw error;
       return res.status(400).render("tree-form", {
         title: "Edit tree",
-        adminName: "Titan Apriliyan",
         tree: {
           ...existingTree,
           treeId: typeof body.treeId === "string" ? body.treeId : "",
@@ -251,7 +235,6 @@ export class PagesController {
   async newTreePage(@Query("categoryId") categoryId?: string) {
     return {
       title: "New tree",
-      adminName: "Titan Apriliyan",
       tree: null,
       categories: await this.catalog.categoryList(),
       selectedCategoryId: Number(categoryId) || null,
@@ -264,7 +247,6 @@ export class PagesController {
   async editTreePage(@Param("id", ParseIntPipe) id: number) {
     return {
       title: "Edit tree",
-      adminName: "Titan Apriliyan",
       tree: await this.catalog.tree(id),
       categories: await this.catalog.categoryList(),
       selectedCategoryId: null,
@@ -277,7 +259,6 @@ export class PagesController {
   async treePage(@Param("id", ParseIntPipe) id: number) {
     return {
       title: "Tree details",
-      adminName: "Titan Apriliyan",
       tree: await this.catalog.tree(id),
       error: null,
     };
