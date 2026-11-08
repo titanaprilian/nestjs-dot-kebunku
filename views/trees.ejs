@@ -33,7 +33,7 @@
       </table>
     </div>
   <% } else { %>
-    <div class="text-center p-5">
+    <div class="empty-state">
       <p class="text-body-secondary mb-3"><%= search || categoryId ? "No trees match these filters." : "No trees yet." %></p>
       <% if (search || categoryId) { %><a class="btn btn-outline-secondary" href="/trees">Clear filters</a><% } else { %><a class="btn btn-primary" href="/trees/new">Add tree</a><% } %>
     </div>

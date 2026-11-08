@@ -1,0 +1,35 @@
+.form-actions > .btn {
+  flex: 1 1 0;
+}
+
+@media (min-width: 576px) {
+  .form-actions > .btn {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: static;
+    width: auto;
+  }
+
+  .sidebar nav {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+  }
+
+  .sidebar nav .nav-link {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .topbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .main-panel {
+    margin-left: 0;
+  }
+}

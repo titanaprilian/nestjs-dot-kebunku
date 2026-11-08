@@ -18,7 +18,7 @@
           <input class="form-control" id="code" name="code" required value="<%= category ? category.code : "" %>" <%= category && category.trees.length ? "readonly" : "" %> placeholder="e.g. DR">
           <div class="form-text">Letters and numbers only; stored in uppercase.<% if (category && category.trees.length) { %> Code cannot change while trees reference this category.<% } %></div>
         </div>
-        <div class="d-flex justify-content-end gap-2 border-top pt-3">
+        <div class="form-actions d-flex justify-content-end gap-2 border-top pt-3">
           <a class="btn btn-outline-secondary" href="/categories">Cancel</a>
           <button class="btn btn-primary" type="submit"><%= categoryId ? "Save changes" : "Create category" %></button>
         </div>

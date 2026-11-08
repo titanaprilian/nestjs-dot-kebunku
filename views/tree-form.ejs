@@ -7,12 +7,12 @@
     <form action="<%= tree && tree.id ? "/trees/" + tree.id : "/trees" %>" method="post">
       <div class="row g-3 mb-3">
         <div class="col-12 col-md-6"><label class="form-label" for="treeId">Tree ID <span class="text-danger">*</span></label><input class="form-control" id="treeId" name="treeId" required value="<%= tree ? tree.treeId : "" %>" placeholder="e.g. MNG-002"></div>
-        <div class="col-12 col-md-6"><label class="form-label" for="plantingDate">Planting date <span class="text-danger">*</span></label><input class="form-control" id="plantingDate" name="plantingDate" type="date" required value="<%= tree ? tree.plantingDate : "" %>"></div>
+        <div class="col-12 col-md-6"><label class="form-label" for="plantingDate">Planting date <span class="text-danger">*</span></label><input class="form-control" id="plantingDate" name="plantingDate" type="date" max="<%= new Date().toISOString().slice(0, 10) %>" required value="<%= tree ? tree.plantingDate : "" %>"><div class="form-text">Choose today or an earlier date.</div></div>
         <div class="col-12 col-md-6"><label class="form-label" for="location">Location <span class="text-danger">*</span></label><input class="form-control" id="location" name="location" required value="<%= tree ? tree.location : "" %>" placeholder="Garden location"></div>
         <div class="col-12 col-md-6"><label class="form-label" for="categoryId">Category <span class="text-danger">*</span></label><select class="form-select" id="categoryId" name="categoryId" required><option value="">Choose a category</option><% categories.forEach((category) => { %><option value="<%= category.id %>" <%= (tree && tree.categoryId === category.id) || (!tree && selectedCategoryId === category.id) ? "selected" : "" %>><%= category.name %> (<%= category.code %>)</option><% }) %></select></div>
       </div>
       <div class="mb-3"><label class="form-label" for="imageUrl">Image URL <span class="text-body-secondary">(optional)</span></label><input class="form-control" id="imageUrl" name="imageUrl" type="url" value="<%= tree ? tree.imageUrl : "" %>" placeholder="https://example.com/tree.jpg"></div>
-      <div class="d-flex justify-content-end gap-2 border-top pt-3"><a class="btn btn-outline-secondary" href="/trees">Cancel</a><button class="btn btn-primary" type="submit"><%= tree && tree.id ? "Save changes" : "Create tree" %></button></div>
+      <div class="form-actions d-flex justify-content-end gap-2 border-top pt-3"><a class="btn btn-outline-secondary" href="/trees">Cancel</a><button class="btn btn-primary" type="submit"><%= tree && tree.id ? "Save changes" : "Create tree" %></button></div>
     </form>
   </div></section></div>
 </div>

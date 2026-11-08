@@ -34,7 +34,7 @@
       </table>
     </div>
   <% } else { %>
-    <div class="text-center p-5">
+    <div class="empty-state">
       <p class="text-body-secondary mb-3"><%= search ? "No categories match your search." : "No categories yet." %></p>
       <% if (search) { %><a class="btn btn-outline-secondary" href="/categories">Clear search</a><% } else { %><a class="btn btn-primary" href="/categories/new">New category</a><% } %>
     </div>
